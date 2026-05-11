@@ -2,7 +2,7 @@ import { randomBytes, createHmac } from "node:crypto";
 import { eq } from "drizzle-orm";
 
 import db from "../db/index.js";
-import { users } from "../db/schema.js";
+import { users, userSessions } from "../db/schema.js";
 
 export const signUp = async (req, res) => {
   const { name, email, password } = req.body;
@@ -40,4 +40,43 @@ export const signUp = async (req, res) => {
     .returning({ id: users.id });
 
   return res.status(201).json({ status: "success", data: { userId: user.id } });
+};
+
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  const [existingUser] = await db
+    .select({
+      id: users.id,
+      email: users.email,
+      password: users.password,
+      salt: users.salt,
+    })
+    .from(users)
+    .where((table) => eq(table.email, email));
+
+  if (!existingUser) {
+    return res
+      .status(404)
+      .json({ error: `User with email ${email} does not exists!` });
+  }
+
+  const salt = existingUser.salt;
+  const existingHash = existingUser.password;
+
+  const newHash = createHmac("sha256", salt).update(password).digest("hex");
+
+  if (newHash !== existingHash) {
+    return res.status(400).json({ error: "Incorrect passoword!" });
+  }
+
+  // Generate a session for user
+  const [session] = await db
+    .insert(userSessions)
+    .values({
+      userId: existingUser.id,
+    })
+    .returning({ id: userSessions.id });
+
+  return res.status(200).json({ status: `success`, sessionId: session.id });
 };
