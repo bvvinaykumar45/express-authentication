@@ -4,6 +4,31 @@ import { eq } from "drizzle-orm";
 import db from "../db/index.js";
 import { users, userSessions } from "../db/schema.js";
 
+export const me = async (req, res) => {
+  const sessionId = req.headers["session-id"];
+
+  if (!sessionId) {
+    return res.status(401).json({ error: "You are not logged in" });
+  }
+
+  const [data] = await db
+    .select({
+      id: userSessions.id,
+      userId: userSessions.userId,
+      name: users.name,
+      email: users.email,
+    })
+    .from(userSessions)
+    .rightJoin(users, eq(users.id, userSessions.userId))
+    .where((table) => eq(table.id, sessionId));
+
+  if (!data) {
+    return res.status(401).json({ error: "You are not logged in" });
+  }
+
+  return res.status(200).json({ data });
+};
+
 export const signUp = async (req, res) => {
   const { name, email, password } = req.body;
 

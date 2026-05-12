@@ -12,7 +12,7 @@ app.get('/', (req, res) => {
   return res.status(200).json({ status: 'Server is up and running' }); 
 });
 
-app.use('/users', userRouter);
+app.use('/user', userRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is up and running on port ${PORT}`);
