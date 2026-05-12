@@ -14,6 +14,19 @@ export const me = async (req, res) => {
   return res.status(200).json({ user });
 };
 
+export const updateUserName = async (req, res) => {
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({ error: "You are not logged in" });
+  }
+
+  const { name } = req.body;
+  await db.update(users).set({ name: name }).where(eq(users.id, user.id));
+
+  return res.json({ status: "success" });
+};
+
 export const signUp = async (req, res) => {
   const { name, email, password } = req.body;
 
