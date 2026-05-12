@@ -5,28 +5,13 @@ import db from "../db/index.js";
 import { users, userSessions } from "../db/schema.js";
 
 export const me = async (req, res) => {
-  const sessionId = req.headers["session-id"];
+  const user = req.user;
 
-  if (!sessionId) {
+  if (!user) {
     return res.status(401).json({ error: "You are not logged in" });
   }
 
-  const [data] = await db
-    .select({
-      id: userSessions.id,
-      userId: userSessions.userId,
-      name: users.name,
-      email: users.email,
-    })
-    .from(userSessions)
-    .rightJoin(users, eq(users.id, userSessions.userId))
-    .where((table) => eq(table.id, sessionId));
-
-  if (!data) {
-    return res.status(401).json({ error: "You are not logged in" });
-  }
-
-  return res.status(200).json({ data });
+  return res.status(200).json({ user });
 };
 
 export const signUp = async (req, res) => {
