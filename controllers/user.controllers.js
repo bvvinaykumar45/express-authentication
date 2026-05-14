@@ -9,21 +9,11 @@ const JWT_SECRET = process.env.JWT_SECRET || "secret";
 
 export const me = async (req, res) => {
   const user = req.user;
-
-  if (!user) {
-    return res.status(401).json({ error: "You are not logged in" });
-  }
-
+  
   return res.status(200).json({ user });
 };
 
 export const updateUserName = async (req, res) => {
-  const user = req.user;
-
-  if (!user) {
-    return res.status(401).json({ error: "You are not logged in" });
-  }
-
   const { name } = req.body;
   await db.update(users).set({ name: name }).where(eq(users.id, user.id));
 

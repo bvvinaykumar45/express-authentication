@@ -23,3 +23,13 @@ export const validateToken = async (req, res, next) => {
   req.user = user;
   next();
 };
+
+export const validateUserLoggedIn = async (req, res, next) => {
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({ error: "You are not logged in" });
+  }
+  
+  next();
+}
