@@ -14,6 +14,8 @@ export const me = async (req, res) => {
 };
 
 export const updateUserName = async (req, res) => {
+  const user = req.user;
+  
   const { name } = req.body;
   await db.update(users).set({ name: name }).where(eq(users.id, user.id));
 
