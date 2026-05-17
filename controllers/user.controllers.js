@@ -15,7 +15,7 @@ export const me = async (req, res) => {
 
 export const updateUserName = async (req, res) => {
   const user = req.user;
-  
+
   const { name } = req.body;
   await db.update(users).set({ name: name }).where(eq(users.id, user.id));
 
@@ -70,6 +70,7 @@ export const login = async (req, res) => {
       email: users.email,
       password: users.password,
       salt: users.salt,
+      role: users.role
     })
     .from(users)
     .where((table) => eq(table.email, email));
@@ -93,7 +94,8 @@ export const login = async (req, res) => {
   const token = jwt.sign({
     id: existingUser.id,
     email: existingUser.email,
-    name: existingUser.name
+    name: existingUser.name,
+    role: existingUser.role
   }, JWT_SECRET, { expiresIn: '10m' });
 
   return res.status(200).json({ status: `success`, token: token });
