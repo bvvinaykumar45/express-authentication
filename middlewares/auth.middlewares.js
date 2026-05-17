@@ -33,3 +33,13 @@ export const validateUserLoggedIn = async (req, res, next) => {
   
   next();
 }
+
+export const validateAdmin = async (req, res, next) => {
+  const user = req.user;
+
+  if(user.role !== "ADMIN") {
+    res.status(403).json({ error: "You are not authorized to view details." });
+  }
+
+  next();
+}
